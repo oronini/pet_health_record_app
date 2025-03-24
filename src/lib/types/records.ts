@@ -10,4 +10,5 @@ export type CardTxtsType = {
   txt: string;
   alt: string;
   src: string;
+  recordList?: boolean;
 };

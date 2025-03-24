@@ -9,12 +9,18 @@ import Image from 'next/image';
 import { RecordType } from '@/lib/types/records';
 import CardTxts from './CardTxts';
 
-const RecordCard = ({ record }: { record: RecordType }) => {
+const RecordCard = ({
+  record,
+  recordList,
+}: {
+  record: RecordType;
+  recordList?: boolean;
+}) => {
   return (
     <li>
-      <Card>
+      <Card className={recordList ? 'gap-0' : 'gap-4'}>
         <CardHeader>
-          <div className="flex gap-2 justify-between flex-wrap">
+          <div className="flex justify-between flex-wrap gap-2">
             <CardTitle>{record.action}</CardTitle>
             <CardTimes>
               <Image
@@ -26,6 +32,30 @@ const RecordCard = ({ record }: { record: RecordType }) => {
               {record.datetime}
             </CardTimes>
           </div>
+          {recordList ? (
+            <div className="flex justify-end gap-5 mt-2">
+              <button className="flex items-center gap-1">
+                <Image
+                  src="/images/icons/edit_icon.svg"
+                  alt="編集"
+                  width={18}
+                  height={18}
+                />
+                編集
+              </button>
+              <button className="flex items-center gap-1">
+                <Image
+                  src="/images/icons/delete_icon.svg"
+                  alt="削除"
+                  width={18}
+                  height={18}
+                />
+                削除
+              </button>
+            </div>
+          ) : (
+            ''
+          )}
         </CardHeader>
         <CardContent>
           {record.status ? (

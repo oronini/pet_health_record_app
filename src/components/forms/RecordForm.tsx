@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '../ui/textarea';
+import { Input } from '@/components/ui/input';
 
 const formSchema = z.object({
   petId: z
@@ -29,6 +30,13 @@ const formSchema = z.object({
     })
     .min(1, {
       message: 'ペットを選択してください。',
+    }),
+  datetime: z
+    .string({
+      required_error: '日時を選択してください。',
+    })
+    .min(1, {
+      message: '日時を選択してください。',
     }),
   action: z
     .string({
@@ -48,6 +56,7 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
     mode: 'onBlur',
     defaultValues: {
       petId: '',
+      datetime: '',
       action: '',
       status: '',
       amount: '',
@@ -55,14 +64,15 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log(values);
     onClose();
-  }
+  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* ペット選択 */}
         <FormField
           control={form.control}
           name="petId"
@@ -88,7 +98,34 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
             </FormItem>
           )}
         />
-
+        {/* 日時選択 */}
+        <FormField
+          control={form.control}
+          name="datetime"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                日時選択
+                <span className="text-red-500 text-[12px]">※ 必須</span>
+              </FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-2 w-full">
+                  <Input
+                    type="datetime-local"
+                    className="w-full block"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  />
+                  <Button variant="outline" type="button">
+                    Now
+                  </Button>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* 行動選択 */}
         <FormField
           control={form.control}
           name="action"
@@ -115,7 +152,7 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
             </FormItem>
           )}
         />
-
+        {/* 状態選択 */}
         <FormField
           control={form.control}
           name="status"
@@ -138,7 +175,7 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
             </FormItem>
           )}
         />
-
+        {/* 量選択 */}
         <FormField
           control={form.control}
           name="amount"
@@ -161,7 +198,7 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
             </FormItem>
           )}
         />
-
+        {/* コメント */}
         <FormField
           control={form.control}
           name="comment"
@@ -178,7 +215,7 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
             </FormItem>
           )}
         />
-
+        {/* ボタン */}
         <div className="flex flex-col gap-2">
           <Button className="w-full hover:opacity-70" type="submit">
             記録を保存

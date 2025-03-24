@@ -1,9 +1,19 @@
-import RecordCard from '@/components/parts/RecordCard';
+import RecordCard from '@/components/cards/RecordCard';
 import Image from 'next/image';
 import { records1, records2, records3 } from '@/lib/data/recored';
-import AddRecordDialog from '@/components/parts/AddRecordDialog';
-
+import AddRecordDialog from '@/components/forms/AddRecordDialog';
+// import { recordData } from '@/lib/data/recored';
+// import { useState } from 'react';
 const Home = () => {
+  // const [pet1Records, setPet1Records] = useState(
+  //   recordData.filter((record) => record.petId === 1)
+  // );
+  // const [pet2Records, setPet2Records] = useState(
+  //   recordData.filter((record) => record.petId === 2)
+  // );
+  // const [pet3Records, setPet3Records] = useState(
+  //   recordData.filter((record) => record.petId === 3)
+  // );
   return (
     <div className="contentWrapper mt-6">
       <AddRecordDialog />
