@@ -1,12 +1,20 @@
 'use client';
 
 import { pets } from '@/lib/data/recored';
-import { createContext, useState, useContext, ReactNode } from 'react';
+import {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from 'react';
 
-const PetsContext = createContext<{
+type PetsContextType = {
   petsData: typeof pets;
   setPetsData: (petsData: typeof pets) => void;
-}>({
+};
+
+const PetsContext = createContext<PetsContextType>({
   petsData: [],
   setPetsData: () => {},
 });
@@ -16,12 +24,15 @@ export function usePetsContext() {
 }
 
 export function PetsProvider({ children }: { children: ReactNode }) {
-  const [petsData, setPetsData] = useState(pets);
+  const [petsData, setPetsData] = useState<typeof pets>([]);
 
-  const value = {
-    petsData,
-    setPetsData,
-  };
+  useEffect(() => {
+    setPetsData(pets);
+  }, []);
 
-  return <PetsContext.Provider value={value}>{children}</PetsContext.Provider>;
+  return (
+    <PetsContext.Provider value={{ petsData, setPetsData }}>
+      {children}
+    </PetsContext.Provider>
+  );
 }

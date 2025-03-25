@@ -3,8 +3,8 @@ import { Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
 import Image from 'next/image';
 import Link from 'next/link';
-import { PetsProvider } from '@/context/petsContext';
 import { RecordProvider } from '@/context/recordContext';
+import { PetsProvider } from '@/context/petsContext';
 
 const notoSansJp = Noto_Sans_JP({
   subsets: ['latin'],

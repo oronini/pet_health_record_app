@@ -8,6 +8,7 @@ import {
   ReactNode,
   Dispatch,
   SetStateAction,
+  useEffect,
 } from 'react';
 import { Record } from '@/lib/types/records';
 
@@ -26,16 +27,15 @@ export function useRecordContext() {
 }
 
 export function RecordProvider({ children }: { children: ReactNode }) {
-  const [recordData, setRecordData] = useState<Record[]>(initialRecordData);
+  const [recordData, setRecordData] = useState<Record[]>([]);
 
-  console.log('recordData', initialRecordData);
-
-  const value = {
-    recordData,
-    setRecordData,
-  };
+  useEffect(() => {
+    setRecordData(initialRecordData);
+  }, []);
 
   return (
-    <RecordContext.Provider value={value}>{children}</RecordContext.Provider>
+    <RecordContext.Provider value={{ recordData, setRecordData }}>
+      {children}
+    </RecordContext.Provider>
   );
 }
