@@ -24,16 +24,6 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '@/components/ui/input';
 import { pets } from '@/lib/data/recored';
 import * as React from 'react';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   petId: z
@@ -96,32 +86,6 @@ const RecordForm = ({
       .slice(0, 16);
     form.setValue('datetime', formattedDate);
   };
-
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (selectedDate) {
-      form.setValue('datetime', selectedDate.toISOString());
-    }
-  };
-
-  const handleTimeChange = (type: 'hour' | 'minute', value: string) => {
-    const currentDate = form.getValues('datetime')
-      ? new Date(form.getValues('datetime'))
-      : new Date();
-
-    const newDate = new Date(currentDate);
-    if (type === 'hour') {
-      newDate.setHours(parseInt(value));
-    } else if (type === 'minute') {
-      newDate.setMinutes(parseInt(value));
-    }
-    form.setValue('datetime', newDate.toISOString());
-  };
-
-  const [isOpen, setIsOpen] = React.useState(false);
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-  const selectedDate = form.getValues('datetime')
-    ? new Date(form.getValues('datetime'))
-    : undefined;
 
   const petsData = pets;
   const settingsData = {
