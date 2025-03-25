@@ -10,8 +10,13 @@ import {
 } from '@/components/ui/dialog';
 import RecordForm from '@/components/forms/RecordForm';
 import { useState } from 'react';
+import { AddRecordType } from '@/lib/types/records';
 
-const AddRecordDialog = () => {
+const AddRecordDialog = ({
+  onSubmit,
+}: {
+  onSubmit: (record: AddRecordType) => void;
+}) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,7 +26,7 @@ const AddRecordDialog = () => {
         <DialogHeader>
           <DialogTitle>記録入力</DialogTitle>
           <DialogDescription>
-            <RecordForm onClose={() => setOpen(false)} />
+            <RecordForm onClose={() => setOpen(false)} onSubmit={onSubmit} />
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

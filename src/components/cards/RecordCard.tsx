@@ -6,14 +6,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Image from 'next/image';
-import { RecordType } from '@/lib/types/records';
+import { RecordListType } from '@/lib/types/records';
 import CardTxts from './CardTxts';
 
 const RecordCard = ({
   record,
   recordList,
 }: {
-  record: RecordType;
+  record: RecordListType;
   recordList?: boolean;
 }) => {
   return (

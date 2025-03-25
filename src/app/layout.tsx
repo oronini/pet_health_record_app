@@ -33,10 +33,11 @@ export default function RootLayout({
               <div className="flex items-center gap-8">
                 <Link href="/" className="flex items-center gap-1 text-base">
                   <Image
-                    src="images/icons/home_icon.svg"
+                    src="/images/icons/home_icon.svg"
                     alt="ホーム"
-                    width={16}
-                    height={16}
+                    width={24}
+                    height={24}
+                    className="w-auto h-auto max-w-4 max-h-4"
                   />
                   ホーム
                 </Link>
@@ -45,10 +46,11 @@ export default function RootLayout({
                   className="flex items-center gap-1 text-base"
                 >
                   <Image
-                    src="images/icons/record_list_icon.svg"
+                    src="/images/icons/record_list_icon.svg"
                     alt="記録一覧"
                     width={16}
                     height={16}
+                    className="w-auto h-auto"
                   />
                   記録一覧
                 </Link>
@@ -57,10 +59,11 @@ export default function RootLayout({
                   className="flex items-center gap-1 text-base"
                 >
                   <Image
-                    src="images/icons/setting_icon.svg"
+                    src="/images/icons/setting_icon.svg"
                     alt="設定"
                     width={16}
                     height={16}
+                    className="w-auto h-auto"
                   />
                   設定
                 </Link>

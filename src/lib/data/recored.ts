@@ -1,22 +1,3 @@
-export const records1 = {
-  action: '行動テキスト',
-  datetime: '2025/01/01 12:00',
-  status: '状態テキスト',
-  amount: '量テキスト',
-  note: '備考テキスト',
-};
-export const records2 = {
-  action: '行動テキスト',
-  datetime: '2025/01/01 12:00',
-  note: '備考テキスト',
-};
-export const records3 = {
-  action: '行動テキスト',
-  datetime: '2025/01/01 12:00',
-  status: '状態テキスト',
-  amount: '量テキスト',
-};
-
 export const pets = [
   {
     petId: 1,
@@ -29,6 +10,26 @@ export const pets = [
   {
     petId: 3,
     petName: 'ペット3',
+  },
+];
+
+export const settingsData = [
+  {
+    actions: [
+      { actionId: 1, actionName: '行動テキスト1' },
+      { actionId: 2, actionName: '行動テキスト2' },
+      { actionId: 3, actionName: '行動テキスト3' },
+    ],
+    statuses: [
+      { statusId: 1, statusName: '状態テキスト1', relatedActionsId: [1, 2] },
+      { statusId: 2, statusName: '状態テキスト2', relatedActionsId: [3] },
+      { statusId: 3, statusName: '状態テキスト3', relatedActionsId: [1, 2, 3] },
+    ],
+    amounts: [
+      { amountId: 1, amountName: '量テキスト1' },
+      { amountId: 2, amountName: '量テキスト2' },
+      { amountId: 3, amountName: '量テキスト3' },
+    ],
   },
 ];
 

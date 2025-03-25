@@ -1,4 +1,12 @@
-export type RecordType = {
+export type RecordListType = {
+  action: string;
+  datetime: string;
+  status?: string;
+  amount?: string;
+  note?: string;
+};
+
+export type AddRecordType = {
   action: string;
   datetime: string;
   status?: string;

@@ -22,6 +22,18 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '../ui/textarea';
 import { Input } from '@/components/ui/input';
+import { pets } from '@/lib/data/recored';
+import * as React from 'react';
+import { CalendarIcon } from '@radix-ui/react-icons';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   petId: z
@@ -50,7 +62,13 @@ const formSchema = z.object({
   comment: z.string().optional().or(z.literal('')),
 });
 
-const RecordForm = ({ onClose }: { onClose: () => void }) => {
+const RecordForm = ({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: (values: z.infer<typeof formSchema>) => void;
+}) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onBlur',
@@ -64,14 +82,78 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+    onSubmit(values);
     console.log(values);
     onClose();
   };
 
+  const onClickNow = () => {
+    const now = new Date();
+    const formattedDate = now
+      .toLocaleString('sv', { timeZone: 'Asia/Tokyo' })
+      .replace(' ', 'T')
+      .slice(0, 16);
+    form.setValue('datetime', formattedDate);
+  };
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      form.setValue('datetime', selectedDate.toISOString());
+    }
+  };
+
+  const handleTimeChange = (type: 'hour' | 'minute', value: string) => {
+    const currentDate = form.getValues('datetime')
+      ? new Date(form.getValues('datetime'))
+      : new Date();
+
+    const newDate = new Date(currentDate);
+    if (type === 'hour') {
+      newDate.setHours(parseInt(value));
+    } else if (type === 'minute') {
+      newDate.setMinutes(parseInt(value));
+    }
+    form.setValue('datetime', newDate.toISOString());
+  };
+
+  const [isOpen, setIsOpen] = React.useState(false);
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const selectedDate = form.getValues('datetime')
+    ? new Date(form.getValues('datetime'))
+    : undefined;
+
+  const petsData = pets;
+  const settingsData = {
+    actions: [
+      {
+        actionId: 1,
+        actionName: '行動テキスト1',
+      },
+      {
+        actionId: 2,
+        actionName: '行動テキスト2',
+      },
+      {
+        actionId: 3,
+        actionName: '行動テキスト3',
+      },
+    ],
+    statuses: [
+      { statusId: 1, statusName: '状態テキスト1', relatedActionsId: [1, 2] },
+      { statusId: 2, statusName: '状態テキスト2', relatedActionsId: [3] },
+      { statusId: 3, statusName: '状態テキスト3', relatedActionsId: [1, 2, 3] },
+    ],
+    amounts: [
+      { amountId: 1, amountName: '量テキスト1' },
+      { amountId: 2, amountName: '量テキスト2' },
+      { amountId: 3, amountName: '量テキスト3' },
+    ],
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         {/* ペット選択 */}
         <FormField
           control={form.control}
@@ -88,9 +170,11 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
                     <SelectValue placeholder="ペットを選択してください。" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pet1">ペット1</SelectItem>
-                    <SelectItem value="pet2">ペット2</SelectItem>
-                    <SelectItem value="pet3">ペット3</SelectItem>
+                    {petsData.map((pet) => (
+                      <SelectItem key={pet.petId} value={pet.petName}>
+                        {pet.petName}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -116,7 +200,7 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.value)}
                   />
-                  <Button variant="outline" type="button">
+                  <Button variant="outline" type="button" onClick={onClickNow}>
                     Now
                   </Button>
                 </div>
@@ -136,15 +220,25 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
                 <span className="text-red-500 text-[12px]">※ 必須</span>
               </FormLabel>
               <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue('status', ''); // 行動変更時に状態をリセット
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="行動を選択してください。" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="food">食事</SelectItem>
-                    <SelectItem value="water">水</SelectItem>
-                    <SelectItem value="toilet">トイレ</SelectItem>
-                    <SelectItem value="medicine">投薬</SelectItem>
+                    {settingsData.actions.map((action) => (
+                      <SelectItem
+                        key={action.actionId}
+                        value={action.actionName}
+                      >
+                        {action.actionName}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -165,9 +259,28 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
                     <SelectValue placeholder="状態を選択してください。" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="good">良好</SelectItem>
-                    <SelectItem value="normal">普通</SelectItem>
-                    <SelectItem value="bad">悪い</SelectItem>
+                    {settingsData.statuses
+                      .filter((status) => {
+                        const actionValue = form.getValues('action');
+                        if (actionValue === '') return true;
+                        const selectedAction = settingsData.actions.find(
+                          (action) => action.actionName === actionValue
+                        );
+                        return (
+                          selectedAction &&
+                          status.relatedActionsId.includes(
+                            selectedAction.actionId
+                          )
+                        );
+                      })
+                      .map((status) => (
+                        <SelectItem
+                          key={status.statusId}
+                          value={status.statusName}
+                        >
+                          {status.statusName}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -188,9 +301,14 @@ const RecordForm = ({ onClose }: { onClose: () => void }) => {
                     <SelectValue placeholder="量を選択してください。" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="much">多い</SelectItem>
-                    <SelectItem value="normal">普通</SelectItem>
-                    <SelectItem value="little">少ない</SelectItem>
+                    {settingsData.amounts.map((amount) => (
+                      <SelectItem
+                        key={amount.amountId}
+                        value={amount.amountName}
+                      >
+                        {amount.amountName}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormControl>
