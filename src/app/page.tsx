@@ -43,9 +43,9 @@ const Home = () => {
             <li
               key={record.petId}
               className={`petNameItem ${
-                record.records.length === 1
+                newRecords.length === 1
                   ? 'w-full'
-                  : record.records.length === 2
+                  : newRecords.length === 2
                   ? 'w-1/2'
                   : 'w-1/3'
               }`}
