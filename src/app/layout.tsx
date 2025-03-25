@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { RecordProvider } from '@/context/recordContext';
 import { PetsProvider } from '@/context/petsContext';
+import { SettingProvider } from '@/context/settingContext';
 
 const notoSansJp = Noto_Sans_JP({
   subsets: ['latin'],
@@ -27,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={notoSansJp.variable}>
+      <body className={notoSansJp.variable} suppressHydrationWarning>
         <div className="min-h-screen content-wrapper px-4 text-sm pt-8 pb-6">
           <header>
             <div className="flex items-end justify-between">
@@ -72,9 +73,11 @@ export default function RootLayout({
               </div>
             </div>
           </header>
-          <PetsProvider>
-            <RecordProvider>{children}</RecordProvider>
-          </PetsProvider>
+          <SettingProvider>
+            <PetsProvider>
+              <RecordProvider>{children}</RecordProvider>
+            </PetsProvider>
+          </SettingProvider>
         </div>
       </body>
     </html>
