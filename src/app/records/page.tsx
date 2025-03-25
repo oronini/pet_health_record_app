@@ -1,10 +1,13 @@
+'use client';
 import Image from 'next/image';
 import RecordCard from '@/components/cards/RecordCard';
-import { pets, recordData } from '@/lib/data/recored';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { usePetsContext } from '@/context/petsContext';
+import { useRecordContext } from '@/context/recordContext';
 
 const RecordsPage = () => {
-  const petsData = pets;
+  const { petsData } = usePetsContext();
+  const { recordData } = useRecordContext();
   const records = petsData.map((pet) => {
     return {
       petId: pet.petId,

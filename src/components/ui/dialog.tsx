@@ -18,7 +18,7 @@ function DialogTrigger({
   return (
     <DialogPrimitive.Trigger
       data-slot="dialog-trigger"
-      className="bg-black text-white px-6 py-3 rounded-sm text-base"
+      className="bg-black text-white px-6 py-3 rounded-sm text-base cursor-pointer"
       {...props}
     />
   );
