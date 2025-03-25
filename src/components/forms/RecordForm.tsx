@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -214,30 +213,28 @@ const RecordForm = ({
         <FormField
           control={form.control}
           name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>状態選択</FormLabel>
-              <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="状態を選択してください。" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {settingsData.statuses
-                      .filter((status) => {
-                        const actionValue = form.getValues('action');
-                        if (actionValue === '') return true;
-                        const selectedAction = settingsData.actions.find(
-                          (action) => action.actionName === actionValue
-                        );
-                        return (
-                          selectedAction &&
-                          status.relatedActionsId.includes(
-                            selectedAction.actionId
-                          )
-                        );
-                      })
-                      .map((status) => (
+          render={({ field }) => {
+            const selectedAction = form.watch('action');
+            const selectedActionId = settingsData.actions.find(
+              (action) => action.actionName === selectedAction
+            )?.actionId;
+
+            const availableStatuses = !selectedAction
+              ? settingsData.statuses // 行動未選択時は全状態を表示
+              : settingsData.statuses.filter((status) =>
+                  status.relatedActionsId.includes(selectedActionId || 0)
+                );
+
+            return (
+              <FormItem>
+                <FormLabel>状態選択</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="状態を選択してください。" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableStatuses.map((status) => (
                         <SelectItem
                           key={status.statusId}
                           value={status.statusName}
@@ -245,13 +242,15 @@ const RecordForm = ({
                           {status.statusName}
                         </SelectItem>
                       ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
+
         {/* 量選択 */}
         <FormField
           control={form.control}
