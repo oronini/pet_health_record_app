@@ -48,7 +48,7 @@ const formSchema = z.object({
     }),
   status: z.string().optional().or(z.literal('')),
   amount: z.string().optional().or(z.literal('')),
-  comment: z.string().optional().or(z.literal('')),
+  note: z.string().optional().or(z.literal('')),
 });
 
 const RecordForm = ({
@@ -67,7 +67,7 @@ const RecordForm = ({
       action: '',
       status: '',
       amount: '',
-      comment: '',
+      note: '',
     },
   });
 
@@ -282,7 +282,7 @@ const RecordForm = ({
         {/* コメント */}
         <FormField
           control={form.control}
-          name="comment"
+          name="note"
           render={({ field }) => (
             <FormItem>
               <FormLabel>コメント</FormLabel>
