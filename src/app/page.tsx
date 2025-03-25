@@ -1,14 +1,14 @@
 'use client';
 import RecordCard from '@/components/cards/RecordCard';
 import Image from 'next/image';
-import { recordData } from '@/lib/data/recored';
 import AddRecordDialog from '@/components/forms/AddRecordDialog';
-import { useState } from 'react';
 import { AddRecordType } from '@/lib/types/records';
 import { usePetsContext } from '@/context/petsContext';
+import { useRecordContext } from '@/context/recordContext';
 
 const Home = () => {
   const { petsData } = usePetsContext();
+  const { recordData, setRecordData } = useRecordContext();
   const records = petsData.map((pet) => {
     return {
       petId: pet.petId,
@@ -17,26 +17,19 @@ const Home = () => {
     };
   });
 
-  const [record, setRecord] = useState(records);
-
   const handleAddRecord = (newRecord: AddRecordType) => {
-    setRecord((prevRecords) =>
-      prevRecords.map((pet) => ({
-        ...pet,
-        records: [
-          ...pet.records,
-          {
-            recordId: Date.now(),
-            petId: pet.petId,
-            datetime: newRecord.datetime,
-            action: newRecord.action,
-            status: newRecord.status || '',
-            amount: newRecord.amount || '',
-            note: newRecord.note || '',
-          },
-        ],
-      }))
-    );
+    setRecordData((prevRecordData) => [
+      ...prevRecordData,
+      {
+        recordId: Date.now(),
+        petId: petsData[0].petId,
+        datetime: newRecord.datetime,
+        action: newRecord.action,
+        status: newRecord.status || '',
+        amount: newRecord.amount || '',
+        note: newRecord.note || '',
+      },
+    ]);
   };
 
   return (
@@ -45,7 +38,7 @@ const Home = () => {
       <div className="newRecords mt-8">
         <h2 className="text-h2">最新の記録</h2>
         <ul className="petNamesList flex gap-5 w-full mt-4">
-          {record.map((record) => (
+          {records.map((record) => (
             <li
               key={record.petId}
               className={`petNameItem ${

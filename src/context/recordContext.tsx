@@ -1,15 +1,15 @@
 'use client';
 
+import { recordData as initialRecordData } from '@/lib/data/recored';
 import {
   createContext,
+  useState,
   useContext,
   ReactNode,
   Dispatch,
   SetStateAction,
-  useState,
 } from 'react';
 import { Record } from '@/lib/types/records';
-import { recordData as initialRecordData } from '@/lib/data/recored';
 
 type RecordContextType = {
   recordData: Record[];
@@ -21,23 +21,21 @@ const RecordContext = createContext<RecordContextType>({
   setRecordData: () => {},
 });
 
-export const useRecordContext = () => {
+export function useRecordContext() {
   return useContext(RecordContext);
-};
+}
 
-export const RecordProvider = ({ children }: { children: ReactNode }) => {
-  const [recordData, setRecordData] = useState<Record[]>(
-    initialRecordData.map((record) => ({
-      ...record,
-      status: record.status || '',
-      amount: record.amount || '',
-      note: record.note || '',
-    }))
-  );
+export function RecordProvider({ children }: { children: ReactNode }) {
+  const [recordData, setRecordData] = useState<Record[]>(initialRecordData);
+
+  console.log('recordData', initialRecordData);
+
+  const value = {
+    recordData,
+    setRecordData,
+  };
 
   return (
-    <RecordContext.Provider value={{ recordData, setRecordData }}>
-      {children}
-    </RecordContext.Provider>
+    <RecordContext.Provider value={value}>{children}</RecordContext.Provider>
   );
-};
+}

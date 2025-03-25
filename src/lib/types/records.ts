@@ -11,9 +11,9 @@ export type Record = {
   petId: number;
   datetime: string;
   action: string;
-  status: string;
-  amount: string;
-  note: string;
+  status?: string;
+  amount?: string;
+  note?: string;
 };
 
 export type AddRecordType = {

@@ -4,6 +4,7 @@ import './globals.css';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PetsProvider } from '@/context/petsContext';
+import { RecordProvider } from '@/context/recordContext';
 
 const notoSansJp = Noto_Sans_JP({
   subsets: ['latin'],
@@ -71,7 +72,9 @@ export default function RootLayout({
               </div>
             </div>
           </header>
-          <PetsProvider>{children}</PetsProvider>
+          <PetsProvider>
+            <RecordProvider>{children}</RecordProvider>
+          </PetsProvider>
         </div>
       </body>
     </html>
