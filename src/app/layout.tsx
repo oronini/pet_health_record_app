@@ -3,6 +3,7 @@ import { Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
 import Image from 'next/image';
 import Link from 'next/link';
+import { PetsProvider } from '@/context/petsContext';
 
 const notoSansJp = Noto_Sans_JP({
   subsets: ['latin'],
@@ -70,7 +71,7 @@ export default function RootLayout({
               </div>
             </div>
           </header>
-          {children}
+          <PetsProvider>{children}</PetsProvider>
         </div>
       </body>
     </html>

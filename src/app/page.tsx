@@ -1,13 +1,14 @@
 'use client';
 import RecordCard from '@/components/cards/RecordCard';
 import Image from 'next/image';
-import { pets, recordData } from '@/lib/data/recored';
+import { recordData } from '@/lib/data/recored';
 import AddRecordDialog from '@/components/forms/AddRecordDialog';
 import { useState } from 'react';
 import { AddRecordType } from '@/lib/types/records';
+import { usePetsContext } from '@/context/petsContext';
 
 const Home = () => {
-  const petsData = pets;
+  const { petsData } = usePetsContext();
   const records = petsData.map((pet) => {
     return {
       petId: pet.petId,

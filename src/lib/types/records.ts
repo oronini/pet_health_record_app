@@ -6,6 +6,16 @@ export type RecordListType = {
   note?: string;
 };
 
+export type Record = {
+  recordId: number;
+  petId: number;
+  datetime: string;
+  action: string;
+  status: string;
+  amount: string;
+  note: string;
+};
+
 export type AddRecordType = {
   action: string;
   datetime: string;
