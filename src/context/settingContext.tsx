@@ -15,7 +15,11 @@ type SettingContextType = {
 };
 
 const SettingContext = createContext<SettingContextType>({
-  settingData: [],
+  settingData: {
+    actions: [],
+    statuses: [],
+    amounts: [],
+  },
   setSettingData: () => {},
 });
 
@@ -24,7 +28,11 @@ export function useSettingContext() {
 }
 
 export function SettingProvider({ children }: { children: ReactNode }) {
-  const [settingData, setSettingData] = useState<typeof settingsData>([]);
+  const [settingData, setSettingData] = useState<typeof settingsData>({
+    actions: [],
+    statuses: [],
+    amounts: [],
+  });
 
   useEffect(() => {
     setSettingData(settingsData);

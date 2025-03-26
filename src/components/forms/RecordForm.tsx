@@ -23,6 +23,7 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '@/components/ui/input';
 import { pets } from '@/lib/data/recored';
 import * as React from 'react';
+import { useSettingContext } from '@/context/settingContext';
 
 const formSchema = z.object({
   petId: z
@@ -58,6 +59,7 @@ const RecordForm = ({
   onClose: () => void;
   onSubmit: (values: z.infer<typeof formSchema>) => void;
 }) => {
+  const { settingData } = useSettingContext();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onBlur',
@@ -87,32 +89,6 @@ const RecordForm = ({
   };
 
   const petsData = pets;
-  const settingsData = {
-    actions: [
-      {
-        actionId: 1,
-        actionName: '行動テキスト1',
-      },
-      {
-        actionId: 2,
-        actionName: '行動テキスト2',
-      },
-      {
-        actionId: 3,
-        actionName: '行動テキスト3',
-      },
-    ],
-    statuses: [
-      { statusId: 1, statusName: '状態テキスト1', relatedActionsId: [1, 2] },
-      { statusId: 2, statusName: '状態テキスト2', relatedActionsId: [3] },
-      { statusId: 3, statusName: '状態テキスト3', relatedActionsId: [1, 2, 3] },
-    ],
-    amounts: [
-      { amountId: 1, amountName: '量テキスト1' },
-      { amountId: 2, amountName: '量テキスト2' },
-      { amountId: 3, amountName: '量テキスト3' },
-    ],
-  };
 
   return (
     <Form {...form}>
@@ -133,11 +109,13 @@ const RecordForm = ({
                     <SelectValue placeholder="ペットを選択してください。" />
                   </SelectTrigger>
                   <SelectContent>
-                    {petsData.map((pet) => (
-                      <SelectItem key={pet.petId} value={pet.petName}>
-                        {pet.petName}
-                      </SelectItem>
-                    ))}
+                    {petsData
+                      .filter((pet) => pet.petName !== '')
+                      .map((pet) => (
+                        <SelectItem key={pet.petId} value={pet.petName}>
+                          {pet.petName}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -194,14 +172,16 @@ const RecordForm = ({
                     <SelectValue placeholder="行動を選択してください。" />
                   </SelectTrigger>
                   <SelectContent>
-                    {settingsData.actions.map((action) => (
-                      <SelectItem
-                        key={action.actionId}
-                        value={action.actionName}
-                      >
-                        {action.actionName}
-                      </SelectItem>
-                    ))}
+                    {settingData.actions
+                      .filter((action) => action.actionName !== '')
+                      .map((action) => (
+                        <SelectItem
+                          key={action.actionId}
+                          value={action.actionName}
+                        >
+                          {action.actionName}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -215,13 +195,13 @@ const RecordForm = ({
           name="status"
           render={({ field }) => {
             const selectedAction = form.watch('action');
-            const selectedActionId = settingsData.actions.find(
+            const selectedActionId = settingData.actions.find(
               (action) => action.actionName === selectedAction
             )?.actionId;
 
             const availableStatuses = !selectedAction
-              ? settingsData.statuses // 行動未選択時は全状態を表示
-              : settingsData.statuses.filter((status) =>
+              ? settingData.statuses // 行動未選択時は全状態を表示
+              : settingData.statuses.filter((status) =>
                   status.relatedActionsId.includes(selectedActionId || 0)
                 );
 
@@ -234,14 +214,16 @@ const RecordForm = ({
                       <SelectValue placeholder="状態を選択してください。" />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableStatuses.map((status) => (
-                        <SelectItem
-                          key={status.statusId}
-                          value={status.statusName}
-                        >
-                          {status.statusName}
-                        </SelectItem>
-                      ))}
+                      {availableStatuses
+                        .filter((status) => status.statusName !== '')
+                        .map((status) => (
+                          <SelectItem
+                            key={status.statusId}
+                            value={status.statusName}
+                          >
+                            {status.statusName}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -264,14 +246,16 @@ const RecordForm = ({
                     <SelectValue placeholder="量を選択してください。" />
                   </SelectTrigger>
                   <SelectContent>
-                    {settingsData.amounts.map((amount) => (
-                      <SelectItem
-                        key={amount.amountId}
-                        value={amount.amountName}
-                      >
-                        {amount.amountName}
-                      </SelectItem>
-                    ))}
+                    {settingData.amounts
+                      .filter((amount) => amount.amountName !== '')
+                      .map((amount) => (
+                        <SelectItem
+                          key={amount.amountId}
+                          value={amount.amountName}
+                        >
+                          {amount.amountName}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </FormControl>

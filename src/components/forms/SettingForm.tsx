@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { XIcon } from 'lucide-react';
-// import { useSettingContext } from '@/context/settingContext';
+import { useSettingContext } from '@/context/settingContext';
 import { usePetsContext } from '@/context/petsContext';
 import { useEffect } from 'react';
 
@@ -37,9 +37,8 @@ const formSchema = z.object({
 });
 
 const SettingForm = () => {
-  // const { settingData, setSettingData } = useSettingContext();
+  const { settingData, setSettingData } = useSettingContext();
   const { petsData, setPetsData } = usePetsContext();
-  console.log(petsData);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,6 +47,7 @@ const SettingForm = () => {
       petName3: '',
     },
   });
+  const settingDataKeys = Object.keys(settingData);
 
   useEffect(() => {
     if (petsData.length > 0) {
@@ -76,6 +76,7 @@ const SettingForm = () => {
       },
     ];
     setPetsData(newPetsData);
+    // setSettingData()
   }
 
   return (
@@ -127,39 +128,35 @@ const SettingForm = () => {
         {/* 記録の設定 */}
         <div className="flex flex-col gap-5 rounded-md border border-gray-200 p-6 shadow-md mt-6">
           <p className="text-base font-bold">記録の設定</p>
-          <Tabs defaultValue="action" className="w-full gap-6">
+          <Tabs defaultValue="actions" className="w-full gap-6">
             {/* 設定項目タブ */}
             <TabsList className="w-full">
-              <TabsTrigger value="action">
-                <Image
-                  src="/images/icons/pawprint_icon_2_noactive.svg"
-                  alt="アイコン"
-                  width={18}
-                  height={18}
-                />
-                行動
-              </TabsTrigger>
-              <TabsTrigger value="status">
-                <Image
-                  src="/images/icons/pawprint_icon_2_noactive.svg"
-                  alt="アイコン"
-                  width={18}
-                  height={18}
-                />
-                状態
-              </TabsTrigger>
-              <TabsTrigger value="amount">
-                <Image
-                  src="/images/icons/pawprint_icon_2_noactive.svg"
-                  alt="アイコン"
-                  width={18}
-                  height={18}
-                />
-                量
-              </TabsTrigger>
+              {settingDataKeys.map((key) => (
+                <TabsTrigger key={key} value={key} className="group">
+                  <Image
+                    src="/images/icons/pawprint_icon_2_active.svg"
+                    alt="アイコン"
+                    width={18}
+                    height={18}
+                    className="group-aria-[selected=false]:hidden w-[18px] h-[18px]"
+                  />
+                  <Image
+                    src="/images/icons/pawprint_icon_2_noactive.svg"
+                    alt="アイコン"
+                    width={18}
+                    height={18}
+                    className="group-aria-[selected=true]:hidden w-[18px] h-[18px]"
+                  />
+                  {key === 'actions'
+                    ? '行動'
+                    : key === 'statuses'
+                    ? '状態'
+                    : '量'}
+                </TabsTrigger>
+              ))}
             </TabsList>
             {/* 行動設定 */}
-            <TabsContent value="action">
+            <TabsContent value="actions">
               <p>行動</p>
               <div className="flex items-center gap-1 mt-2">
                 <Input placeholder="新しい行動を追加" />
@@ -167,50 +164,34 @@ const SettingForm = () => {
                   <Image
                     src="/images/icons/add_icon.svg"
                     alt="アイコン"
-                    width={19}
-                    height={19}
+                    width={20}
+                    height={20}
+                    className="w-[20px] h-[20px]"
                   />
                   追加
                 </Button>
               </div>
               <ul className="mt-2 flex flex-col gap-2">
-                <li className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                  <p>行動1</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-6"
-                    type="button"
+                {settingData.actions.map((action) => (
+                  <li
+                    key={action.actionId}
+                    className="flex justify-between items-center bg-gray-200 px-3 py-2"
                   >
-                    <XIcon />
-                  </Button>
-                </li>
-                <li className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                  <p>行動2</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-6"
-                    type="button"
-                  >
-                    <XIcon />
-                  </Button>
-                </li>
-                <li className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                  <p>行動3</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-6"
-                    type="button"
-                  >
-                    <XIcon />
-                  </Button>
-                </li>
+                    <p>{action.actionName}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-6"
+                      type="button"
+                    >
+                      <XIcon />
+                    </Button>
+                  </li>
+                ))}
               </ul>
             </TabsContent>
             {/* 状態設定 */}
-            <TabsContent value="status">
+            <TabsContent value="statuses">
               <p>状態</p>
               <div className="flex items-center gap-1 mt-2">
                 <Input placeholder="新しい行動を追加" />
@@ -218,14 +199,56 @@ const SettingForm = () => {
                   <Image
                     src="/images/icons/add_icon.svg"
                     alt="アイコン"
-                    width={19}
-                    height={19}
+                    width={20}
+                    height={20}
+                    className="w-[20px] h-[20px]"
                   />
                   追加
                 </Button>
               </div>
               {/* 状態設定リスト */}
               <ul className="mt-2 flex flex-col gap-2">
+                {settingData.statuses.map((status) => (
+                  <li key={status.statusId} className="flex flex-col gap-1">
+                    <div className="flex justify-between items-center bg-gray-200 px-3 py-2">
+                      <p>{status.statusName}</p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-6"
+                        type="button"
+                      >
+                        <XIcon />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <ul className="flex flex-wrap gap-2">
+                        {status.relatedActionsId.map((actionId) => (
+                          <li
+                            key={actionId}
+                            className="flex items-center gap-1"
+                          >
+                            <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                              <Checkbox
+                                id={`status${status.statusId}-action${actionId}`}
+                              />
+                              <label
+                                htmlFor={`status${status.statusId}-action${actionId}`}
+                                className="text-xs leading-none cursor-pointer "
+                              >
+                                {
+                                  settingData.actions.find(
+                                    (action) => action.actionId === actionId
+                                  )?.actionName
+                                }
+                              </label>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                ))}
                 <li className="flex flex-col gap-1">
                   <div className="flex justify-between items-center bg-gray-200 px-3 py-2">
                     <p>状態1</p>
@@ -412,7 +435,7 @@ const SettingForm = () => {
               </ul>
             </TabsContent>
             {/* 量設定 */}
-            <TabsContent value="amount">
+            <TabsContent value="amounts">
               <p>量</p>
               <div className="flex items-center gap-1 mt-2">
                 <Input placeholder="新しい行動を追加" />
@@ -420,46 +443,30 @@ const SettingForm = () => {
                   <Image
                     src="/images/icons/add_icon.svg"
                     alt="アイコン"
-                    width={19}
-                    height={19}
+                    width={20}
+                    height={20}
+                    className="w-[20px] h-[20px]"
                   />
                   追加
                 </Button>
               </div>
               <ul className="mt-2 flex flex-col gap-2">
-                <li className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                  <p>量1</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-6"
-                    type="button"
+                {settingData.amounts.map((amount) => (
+                  <li
+                    key={amount.amountId}
+                    className="flex justify-between items-center bg-gray-200 px-3 py-2"
                   >
-                    <XIcon />
-                  </Button>
-                </li>
-                <li className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                  <p>量2</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-6"
-                    type="button"
-                  >
-                    <XIcon />
-                  </Button>
-                </li>
-                <li className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                  <p>量3</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-6"
-                    type="button"
-                  >
-                    <XIcon />
-                  </Button>
-                </li>
+                    <p>{amount.amountName}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-6"
+                      type="button"
+                    >
+                      <XIcon />
+                    </Button>
+                  </li>
+                ))}
               </ul>
             </TabsContent>
           </Tabs>

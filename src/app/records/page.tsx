@@ -24,7 +24,7 @@ const RecordsPage = () => {
           <TabsList>
             {records.map((record) => (
               <TabsTrigger
-                className="px-4 flex items-center gap-1.5"
+                className="px-4 flex items-center gap-1.5 group"
                 key={record.petId}
                 value={record.petId.toString()}
               >
@@ -33,6 +33,14 @@ const RecordsPage = () => {
                   alt="アイコン"
                   width={18}
                   height={18}
+                  className="group-aria-[selected=false]:hidden w-auto h-auto"
+                />
+                <Image
+                  src="/images/icons/pawprint_icon_2_noactive.svg"
+                  alt="アイコン"
+                  width={18}
+                  height={18}
+                  className="group-aria-[selected=true]:hidden w-auto h-auto"
                 />
                 {record.petName}
               </TabsTrigger>
