@@ -34,9 +34,20 @@ export function SettingProvider({ children }: { children: ReactNode }) {
     amounts: [],
   });
 
+  // 初期データの読み込み
   useEffect(() => {
-    setSettingData(settingsData);
+    const savedSettings = localStorage.getItem('settingData');
+    if (savedSettings) {
+      setSettingData(JSON.parse(savedSettings));
+    } else {
+      setSettingData(settingsData);
+    }
   }, []);
+
+  // データの保存
+  useEffect(() => {
+    localStorage.setItem('settingData', JSON.stringify(settingData));
+  }, [settingData]);
 
   return (
     <SettingContext.Provider value={{ settingData, setSettingData }}>

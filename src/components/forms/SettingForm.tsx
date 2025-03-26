@@ -19,13 +19,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { XIcon } from 'lucide-react';
 import { useSettingContext } from '@/context/settingContext';
 import { usePetsContext } from '@/context/petsContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const formSchema = z.object({
-  petName1: z
-    .string()
-    .min(1, { message: 'ペット1は必須です。' })
-    .max(20, { message: '20文字以内で入力してください' }),
+  petName1: z.string().max(20, { message: '20文字以内で入力してください' }),
   petName2: z
     .string()
     .max(20, { message: '20文字以内で入力してください' })
@@ -34,6 +31,9 @@ const formSchema = z.object({
     .string()
     .max(20, { message: '20文字以内で入力してください' })
     .optional(),
+  actionName: z.string().optional(),
+  statusName: z.string().optional(),
+  amountName: z.string().optional(),
 });
 
 const SettingForm = () => {
@@ -45,9 +45,24 @@ const SettingForm = () => {
       petName1: '',
       petName2: '',
       petName3: '',
+      actionName: '',
+      statusName: '',
+      amountName: '',
     },
   });
   const settingDataKeys = Object.keys(settingData);
+
+  const [settings, setSettings] = useState(settingData);
+  // const [relatedActions, setRelatedActions] = useState([]);
+  const [addInputValidation, setAddInputValidation] = useState({
+    action: false,
+    status: false,
+    amount: false,
+  });
+
+  useEffect(() => {
+    setSettings(settingData);
+  }, [settingData]);
 
   useEffect(() => {
     if (petsData.length > 0) {
@@ -59,12 +74,11 @@ const SettingForm = () => {
     }
   }, [petsData, form]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     const newPetsData = [
       {
         petId: 1,
-        petName: values.petName1,
+        petName: values.petName1 ?? '',
       },
       {
         petId: 2,
@@ -75,9 +89,97 @@ const SettingForm = () => {
         petName: values.petName3 ?? '',
       },
     ];
+
     setPetsData(newPetsData);
-    // setSettingData()
-  }
+    setSettingData(settings);
+  };
+
+  const addAction = () => {
+    const actionName = form.getValues('actionName');
+    if (!actionName) {
+      setAddInputValidation({ ...addInputValidation, action: true });
+      return;
+    }
+
+    setSettings({
+      ...settings,
+      actions: [
+        ...settings.actions,
+        {
+          actionId: new Date().getTime(),
+          actionName,
+        },
+      ],
+    });
+    setAddInputValidation({ ...addInputValidation, action: false });
+    form.setValue('actionName', '');
+  };
+
+  const addStatus = () => {
+    const statusName = form.getValues('statusName');
+    if (!statusName) {
+      setAddInputValidation({ ...addInputValidation, status: true });
+      return;
+    }
+
+    setSettings({
+      ...settings,
+      statuses: [
+        ...settings.statuses,
+        {
+          statusId: new Date().getTime(),
+          statusName,
+          relatedActionsId: [],
+        },
+      ],
+    });
+    setAddInputValidation({ ...addInputValidation, status: false });
+    form.setValue('statusName', '');
+  };
+
+  const addAmount = () => {
+    const amountName = form.getValues('amountName');
+    if (!amountName) {
+      setAddInputValidation({ ...addInputValidation, amount: true });
+      return;
+    }
+
+    setSettings({
+      ...settings,
+      amounts: [
+        ...settings.amounts,
+        {
+          amountId: new Date().getTime(),
+          amountName,
+        },
+      ],
+    });
+    setAddInputValidation({ ...addInputValidation, amount: false });
+    form.setValue('amountName', '');
+  };
+
+  const handleStatusActionChange = (statusId: number, actionId: number) => {
+    const status = settings.statuses.find((s) => s.statusId === statusId);
+    if (!status) return;
+
+    const newRelatedActionsId = status.relatedActionsId.includes(actionId)
+      ? status.relatedActionsId.filter((id) => id !== actionId)
+      : [...status.relatedActionsId, actionId];
+
+    const newStatuses = settings.statuses.map((s) =>
+      s.statusId === statusId
+        ? {
+            ...s,
+            relatedActionsId: newRelatedActionsId,
+          }
+        : s
+    );
+
+    setSettings({
+      ...settings,
+      statuses: newStatuses,
+    });
+  };
 
   return (
     <Form {...form}>
@@ -159,8 +261,20 @@ const SettingForm = () => {
             <TabsContent value="actions">
               <p>行動</p>
               <div className="flex items-center gap-1 mt-2">
-                <Input placeholder="新しい行動を追加" />
-                <Button type="button">
+                <Input
+                  placeholder={
+                    addInputValidation.action
+                      ? '未入力では追加できません'
+                      : '新しい行動を追加'
+                  }
+                  {...form.register('actionName')}
+                  className={
+                    addInputValidation.action
+                      ? 'placeholder:text-red-500 border-red-500 focus-visible:border-red-500 focus-visible:ring-red-300 '
+                      : ''
+                  }
+                />
+                <Button type="button" onClick={addAction}>
                   <Image
                     src="/images/icons/add_icon.svg"
                     alt="アイコン"
@@ -171,8 +285,9 @@ const SettingForm = () => {
                   追加
                 </Button>
               </div>
+              {/* 行動設定リスト */}
               <ul className="mt-2 flex flex-col gap-2">
-                {settingData.actions.map((action) => (
+                {settings.actions.map((action) => (
                   <li
                     key={action.actionId}
                     className="flex justify-between items-center bg-gray-200 px-3 py-2"
@@ -194,8 +309,20 @@ const SettingForm = () => {
             <TabsContent value="statuses">
               <p>状態</p>
               <div className="flex items-center gap-1 mt-2">
-                <Input placeholder="新しい行動を追加" />
-                <Button type="button">
+                <Input
+                  placeholder={
+                    addInputValidation.status
+                      ? '未入力では追加できません'
+                      : '新しい状態を追加'
+                  }
+                  {...form.register('statusName')}
+                  className={
+                    addInputValidation.status
+                      ? 'placeholder:text-red-500 border-red-500 focus-visible:border-red-500 focus-visible:ring-red-300 '
+                      : ''
+                  }
+                />
+                <Button type="button" onClick={addStatus}>
                   <Image
                     src="/images/icons/add_icon.svg"
                     alt="アイコン"
@@ -208,7 +335,7 @@ const SettingForm = () => {
               </div>
               {/* 状態設定リスト */}
               <ul className="mt-2 flex flex-col gap-2">
-                {settingData.statuses.map((status) => (
+                {settings.statuses.map((status) => (
                   <li key={status.statusId} className="flex flex-col gap-1">
                     <div className="flex justify-between items-center bg-gray-200 px-3 py-2">
                       <p>{status.statusName}</p>
@@ -223,24 +350,29 @@ const SettingForm = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <ul className="flex flex-wrap gap-2">
-                        {status.relatedActionsId.map((actionId) => (
+                        {settings.actions.map((action) => (
                           <li
-                            key={actionId}
+                            key={action.actionId}
                             className="flex items-center gap-1"
                           >
                             <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
                               <Checkbox
-                                id={`status${status.statusId}-action${actionId}`}
+                                id={`status${status.statusId}-action${action.actionId}`}
+                                checked={status.relatedActionsId.includes(
+                                  action.actionId
+                                )}
+                                onCheckedChange={() =>
+                                  handleStatusActionChange(
+                                    status.statusId,
+                                    action.actionId
+                                  )
+                                }
                               />
                               <label
-                                htmlFor={`status${status.statusId}-action${actionId}`}
+                                htmlFor={`status${status.statusId}-action${action.actionId}`}
                                 className="text-xs leading-none cursor-pointer "
                               >
-                                {
-                                  settingData.actions.find(
-                                    (action) => action.actionId === actionId
-                                  )?.actionName
-                                }
+                                {action.actionName}
                               </label>
                             </div>
                           </li>
@@ -249,197 +381,26 @@ const SettingForm = () => {
                     </div>
                   </li>
                 ))}
-                <li className="flex flex-col gap-1">
-                  <div className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                    <p>状態1</p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-6"
-                      type="button"
-                    >
-                      <XIcon />
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <ul className="flex flex-wrap gap-2">
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status1-action1" />
-                          <label
-                            htmlFor="status1-action1"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動1
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status1-action2" />
-                          <label
-                            htmlFor="status1-action2"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動2
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status1-action3" />
-                          <label
-                            htmlFor="status1-action3"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動3
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status1-action4" />
-                          <label
-                            htmlFor="status1-action4"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動4
-                          </label>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-                <li className="flex flex-col gap-1">
-                  <div className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                    <p>状態2</p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-6"
-                      type="button"
-                    >
-                      <XIcon />
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <ul className="flex flex-wrap gap-2">
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status2-action1" />
-                          <label
-                            htmlFor="status2-action1"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動1
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status2-action2" />
-                          <label
-                            htmlFor="status2-action2"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動2
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status2-action3" />
-                          <label
-                            htmlFor="status2-action3"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動3
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status2-action4" />
-                          <label
-                            htmlFor="status2-action4"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動4
-                          </label>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-                <li className="flex flex-col gap-1">
-                  <div className="flex justify-between items-center bg-gray-200 px-3 py-2">
-                    <p>状態3</p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-6"
-                      type="button"
-                    >
-                      <XIcon />
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <ul className="flex flex-wrap gap-2">
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status3-action1" />
-                          <label
-                            htmlFor="status3-action1"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動1
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status3-action2" />
-                          <label
-                            htmlFor="status3-action2"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動2
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="status3-action3" />
-                          <label
-                            htmlFor="status3-action3"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動3
-                          </label>
-                        </div>
-                      </li>
-                      <li className="flex items-center gap-1">
-                        <div className="items-center flex gap-1 bg-gray-200 px-2 py-1.5 rounded-sm has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                          <Checkbox id="terms4" />
-                          <label
-                            htmlFor="terms4"
-                            className="text-xs leading-none cursor-pointer "
-                          >
-                            行動4
-                          </label>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
               </ul>
             </TabsContent>
             {/* 量設定 */}
             <TabsContent value="amounts">
               <p>量</p>
               <div className="flex items-center gap-1 mt-2">
-                <Input placeholder="新しい行動を追加" />
-                <Button type="button">
+                <Input
+                  {...form.register('amountName')}
+                  placeholder={
+                    addInputValidation.amount
+                      ? '未入力では追加できません'
+                      : '新しい量を追加'
+                  }
+                  className={
+                    addInputValidation.amount
+                      ? 'placeholder:text-red-500 border-red-500 focus-visible:border-red-500 focus-visible:ring-red-300 '
+                      : ''
+                  }
+                />
+                <Button type="button" onClick={addAmount}>
                   <Image
                     src="/images/icons/add_icon.svg"
                     alt="アイコン"
@@ -450,8 +411,9 @@ const SettingForm = () => {
                   追加
                 </Button>
               </div>
+              {/* 量設定リスト */}
               <ul className="mt-2 flex flex-col gap-2">
-                {settingData.amounts.map((amount) => (
+                {settings.amounts.map((amount) => (
                   <li
                     key={amount.amountId}
                     className="flex justify-between items-center bg-gray-200 px-3 py-2"

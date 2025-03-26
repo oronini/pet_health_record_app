@@ -40,16 +40,20 @@ const formSchema = z.object({
     .min(1, {
       message: '日時を選択してください。',
     }),
-  action: z
+  actionId: z
     .string({
       required_error: '行動を選択してください。',
     })
     .min(1, {
       message: '行動を選択してください。',
     }),
-  status: z.string().optional().or(z.literal('')),
-  amount: z.string().optional().or(z.literal('')),
+  statusId: z.string().optional().or(z.literal('')),
+  amountId: z.string().optional().or(z.literal('')),
   note: z.string().optional().or(z.literal('')),
+  petName: z.string(),
+  actionName: z.string(),
+  statusName: z.string().optional(),
+  amountName: z.string().optional(),
 });
 
 const RecordForm = ({
@@ -66,15 +70,35 @@ const RecordForm = ({
     defaultValues: {
       petId: '',
       datetime: '',
-      action: '',
-      status: '',
-      amount: '',
+      actionId: '',
+      statusId: '',
+      amountId: '',
       note: '',
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values);
+    // IDから表示テキストを取得
+    const selectedPet = pets.find(
+      (pet) => pet.petId.toString() === values.petId
+    );
+    const selectedAction = settingData.actions.find(
+      (action) => action.actionId.toString() === values.actionId
+    );
+    const selectedStatus = settingData.statuses.find(
+      (status) => status.statusId.toString() === values.statusId
+    );
+    const selectedAmount = settingData.amounts.find(
+      (amount) => amount.amountId.toString() === values.amountId
+    );
+
+    onSubmit({
+      ...values,
+      petName: selectedPet?.petName || '',
+      actionName: selectedAction?.actionName || '',
+      statusName: selectedStatus?.statusName || '',
+      amountName: selectedAmount?.amountName || '',
+    });
     console.log(values);
     onClose();
   };
@@ -112,7 +136,10 @@ const RecordForm = ({
                     {petsData
                       .filter((pet) => pet.petName !== '')
                       .map((pet) => (
-                        <SelectItem key={pet.petId} value={pet.petName}>
+                        <SelectItem
+                          key={pet.petId}
+                          value={pet.petId.toString()}
+                        >
                           {pet.petName}
                         </SelectItem>
                       ))}
@@ -153,7 +180,7 @@ const RecordForm = ({
         {/* 行動選択 */}
         <FormField
           control={form.control}
-          name="action"
+          name="actionId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>
@@ -165,7 +192,7 @@ const RecordForm = ({
                   value={field.value}
                   onValueChange={(value) => {
                     field.onChange(value);
-                    form.setValue('status', ''); // 行動変更時に状態をリセット
+                    form.setValue('statusId', ''); // 行動変更時に状態をリセット
                   }}
                 >
                   <SelectTrigger className="w-full">
@@ -177,7 +204,7 @@ const RecordForm = ({
                       .map((action) => (
                         <SelectItem
                           key={action.actionId}
-                          value={action.actionName}
+                          value={action.actionId.toString()}
                         >
                           {action.actionName}
                         </SelectItem>
@@ -192,17 +219,13 @@ const RecordForm = ({
         {/* 状態選択 */}
         <FormField
           control={form.control}
-          name="status"
+          name="statusId"
           render={({ field }) => {
-            const selectedAction = form.watch('action');
-            const selectedActionId = settingData.actions.find(
-              (action) => action.actionName === selectedAction
-            )?.actionId;
-
-            const availableStatuses = !selectedAction
-              ? settingData.statuses // 行動未選択時は全状態を表示
+            const selectedActionId = form.watch('actionId');
+            const availableStatuses = !selectedActionId
+              ? settingData.statuses
               : settingData.statuses.filter((status) =>
-                  status.relatedActionsId.includes(selectedActionId || 0)
+                  status.relatedActionsId.includes(parseInt(selectedActionId))
                 );
 
             return (
@@ -219,7 +242,7 @@ const RecordForm = ({
                         .map((status) => (
                           <SelectItem
                             key={status.statusId}
-                            value={status.statusName}
+                            value={status.statusId.toString()}
                           >
                             {status.statusName}
                           </SelectItem>
@@ -236,7 +259,7 @@ const RecordForm = ({
         {/* 量選択 */}
         <FormField
           control={form.control}
-          name="amount"
+          name="amountId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>量選択</FormLabel>
@@ -251,7 +274,7 @@ const RecordForm = ({
                       .map((amount) => (
                         <SelectItem
                           key={amount.amountId}
-                          value={amount.amountName}
+                          value={amount.amountId.toString()}
                         >
                           {amount.amountName}
                         </SelectItem>

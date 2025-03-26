@@ -26,9 +26,20 @@ export function usePetsContext() {
 export function PetsProvider({ children }: { children: ReactNode }) {
   const [petsData, setPetsData] = useState<typeof pets>([]);
 
+  // 初期データの読み込み
   useEffect(() => {
-    setPetsData(pets);
+    const savedPets = localStorage.getItem('petsData');
+    if (savedPets) {
+      setPetsData(JSON.parse(savedPets));
+    } else {
+      setPetsData(pets);
+    }
   }, []);
+
+  // データの保存
+  useEffect(() => {
+    localStorage.setItem('petsData', JSON.stringify(petsData));
+  }, [petsData]);
 
   return (
     <PetsContext.Provider value={{ petsData, setPetsData }}>
