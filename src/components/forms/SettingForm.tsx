@@ -181,6 +181,24 @@ const SettingForm = () => {
     });
   };
 
+  const handleDelete = (
+    id: number,
+    type: 'actions' | 'statuses' | 'amounts'
+  ) => {
+    setSettings({
+      ...settings,
+      [type]: settings[type].filter((item) => {
+        if (type === 'actions' && 'actionId' in item)
+          return item.actionId !== id;
+        if (type === 'statuses' && 'statusId' in item)
+          return item.statusId !== id;
+        if (type === 'amounts' && 'amountId' in item)
+          return item.amountId !== id;
+        return false;
+      }),
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -298,6 +316,7 @@ const SettingForm = () => {
                       size="icon"
                       className="size-6"
                       type="button"
+                      onClick={() => handleDelete(action.actionId, 'actions')}
                     >
                       <XIcon />
                     </Button>
@@ -344,6 +363,9 @@ const SettingForm = () => {
                         size="icon"
                         className="size-6"
                         type="button"
+                        onClick={() =>
+                          handleDelete(status.statusId, 'statuses')
+                        }
                       >
                         <XIcon />
                       </Button>
@@ -424,6 +446,7 @@ const SettingForm = () => {
                       size="icon"
                       className="size-6"
                       type="button"
+                      onClick={() => handleDelete(amount.amountId, 'amounts')}
                     >
                       <XIcon />
                     </Button>
