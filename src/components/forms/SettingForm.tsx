@@ -17,16 +17,29 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { XIcon } from 'lucide-react';
+// import { useSettingContext } from '@/context/settingContext';
+import { usePetsContext } from '@/context/petsContext';
+import { useEffect } from 'react';
 
 const formSchema = z.object({
-  petName1: z.string().min(1, {
-    message: 'ペット1は必須です',
-  }),
-  petName2: z.string().optional(),
-  petName3: z.string().optional(),
+  petName1: z
+    .string()
+    .min(1, { message: 'ペット1は必須です。' })
+    .max(20, { message: '20文字以内で入力してください' }),
+  petName2: z
+    .string()
+    .max(20, { message: '20文字以内で入力してください' })
+    .optional(),
+  petName3: z
+    .string()
+    .max(20, { message: '20文字以内で入力してください' })
+    .optional(),
 });
 
 const SettingForm = () => {
+  // const { settingData, setSettingData } = useSettingContext();
+  const { petsData, setPetsData } = usePetsContext();
+  console.log(petsData);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,8 +49,33 @@ const SettingForm = () => {
     },
   });
 
+  useEffect(() => {
+    if (petsData.length > 0) {
+      form.reset({
+        petName1: petsData[0]?.petName ?? '',
+        petName2: petsData[1]?.petName ?? '',
+        petName3: petsData[2]?.petName ?? '',
+      });
+    }
+  }, [petsData, form]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    const newPetsData = [
+      {
+        petId: 1,
+        petName: values.petName1,
+      },
+      {
+        petId: 2,
+        petName: values.petName2 ?? '',
+      },
+      {
+        petId: 3,
+        petName: values.petName3 ?? '',
+      },
+    ];
+    setPetsData(newPetsData);
   }
 
   return (

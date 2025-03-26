@@ -9,7 +9,7 @@ export const pets = [
   },
   {
     petId: 3,
-    petName: 'ペット3',
+    petName: '',
   },
 ];
 

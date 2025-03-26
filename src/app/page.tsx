@@ -11,11 +11,13 @@ const Home = () => {
   const { petsData } = usePetsContext();
   const { recordData, setRecordData } = useRecordContext();
 
-  const newRecords = petsData.map((pet) => ({
-    petId: pet.petId,
-    petName: pet.petName,
-    records: recordData.filter((record) => record.petId === pet.petId),
-  }));
+  const newRecords = petsData
+    .filter((pet) => pet.petName !== '')
+    .map((pet) => ({
+      petId: pet.petId,
+      petName: pet.petName,
+      records: recordData.filter((record) => record.petId === pet.petId),
+    }));
 
   const handleAddRecord = (newRecord: AddRecordType) => {
     const now = new Date();
